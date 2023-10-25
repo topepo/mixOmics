@@ -3,7 +3,7 @@
 # =============================================================================
 
 #' Calculates the proportion of explained variance of multivariate components
-#' 
+#'
 #' \code{explained_variance} calculates the proportion of variance explained by
 #' a set of *orthogonal* variates / components and divides by the total variance
 #' in \code{data} using the definition of 'redundancy'. This applies to any
@@ -13,7 +13,7 @@
 #' Therefore, this function would underestimate the total variance in presence
 #' of abundant missing values. One can use \code{\link{impute.nipals}} function
 #' to impute the missing values to avoid such behaviour.
-#' 
+#'
 #' @param data numeric matrix of predictors
 #' @param variates variates as obtained from a \code{pls} object for instance
 #' @param ncomp number of components. Should be lower than the number of
@@ -32,38 +32,37 @@
 #' \code{\link{plotVar}}, \code{\link{cim}}, \code{\link{network}}.
 #' @keywords regression multivariate
 #' @examples
-#' 
+#'
 #' data(liver.toxicity)
 #' X <- liver.toxicity$gene
 #' Y <- liver.toxicity$clinic
-#' 
+#'
 #' toxicity.spls <- spls(X, Y, ncomp = 2, keepX = c(50, 50), keepY = c(10, 10))
-#' 
-#' ex = explained_variance(toxicity.spls$X, toxicity.spls$variates$X, ncomp =2)
-#' 
+#'
+#' ex <- explained_variance(toxicity.spls$X, toxicity.spls$variates$X, ncomp = 2)
+#'
 #' # ex should be the same as
 #' toxicity.spls$prop_expl_var$X
-#' 
+#'
 #' @export
-explained_variance <- function(data, variates, ncomp)
-{
-  #check input data
-  check = Check.entry.single(data, ncomp)
-  data = check$X
-  ncomp = check$ncomp
+explained_variance <- function(data, variates, ncomp) {
+  # check input data
+  check <- Check.entry.single(data, ncomp)
+  data <- check$X
+  ncomp <- check$ncomp
   ## pre-allocate output
-  expl_var <- vector(mode = 'numeric', length = ncomp)
-  names(expl_var) <- paste0('comp', seq_len(ncomp))
+  expl_var <- vector(mode = "numeric", length = ncomp)
+  names(expl_var) <- paste0("comp", seq_len(ncomp))
 
   data[is.na(data)] <- 0 ## if there is any -- no warning as explained in docs
-  norm2.X <- norm(data, type='F')^2 # total variance in the data
-  
+  norm2.X <- norm(data, type = "F")^2 # total variance in the data
+
   for (h in 1:ncomp)
   {
-    a <- crossprod(variates[, h, drop=FALSE], data)
+    a <- crossprod(variates[, h, drop = FALSE], data)
     # this is equivalent to calculate the redundancy as detailed in the help file
     expl_var[h] <- tcrossprod(a) / c(crossprod(variates[, h])) / norm2.X
   }
-  
+
   return(expl_var)
 }

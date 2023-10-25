@@ -1,9 +1,9 @@
 #' Linnerud Dataset
-#' 
+#'
 #' Three physiological and three exercise variables are measured on twenty
 #' middle-aged men in a fitness club.
-#' 
-#' 
+#'
+#'
 #' @name linnerud
 #' @docType data
 #' @usage data(linnerud)

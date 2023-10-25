@@ -6,11 +6,11 @@
 
 #' P-integration with Projection to Latent Structures models (PLS) with
 #' Discriminant Analysis
-#' 
+#'
 #' Function to combine multiple independent studies measured on the same
 #' variables or predictors (P-integration) using variants of multi-group PLS-DA
 #' for supervised classification.
-#' 
+#'
 #' \code{mint.plsda} function fits a vertical PLS-DA models with \code{ncomp}
 #' components in which several independent studies measured on the same
 #' variables are integrated. The aim is to classify the discrete outcome
@@ -18,26 +18,26 @@
 #' each study. We advise to only combine studies with more than 3 samples as
 #' the function performs internal scaling per study, and where all outcome
 #' categories are represented.
-#' 
+#'
 #' \code{X} can contain missing values. Missing values are handled by being
 #' disregarded during the cross product computations in the algorithm
 #' \code{mint.plsda} without having to delete rows with missing data.
 #' Alternatively, missing data can be imputed prior using the
 #' \code{impute.nipals} function.
-#' 
+#'
 #' The type of deflation used is \code{'regression'} for discriminant algorithms.
 #' i.e. no deflation is performed on Y.
-#' 
+#'
 #' Useful graphical outputs are available, e.g. \code{\link{plotIndiv}},
 #' \code{\link{plotLoadings}}, \code{\link{plotVar}}.
-#' 
+#'
 #' @inheritParams mint.pls
 #' @param Y A factor or a class vector indicating the discrete outcome of each
 #' sample.
 #' @template arg/verbose.call
 #' @return \code{mint.plsda} returns an object of class \code{"mint.plsda",
 #' "plsda"}, a list that contains the following components:
-#' 
+#'
 #' \item{X}{the centered and standardized original predictor matrix.}
 #' \item{Y}{original factor} \item{ind.mat}{the centered and standardized
 #' original response vector or matrix.} \item{ncomp}{the number of components
@@ -68,34 +68,36 @@
 #' MINT: A multivariate integrative approach to identify a reproducible
 #' biomarker signature across multiple experiments and platforms. BMC
 #' Bioinformatics 18:128.
-#' 
+#'
 #' Eslami, A., Qannari, E. M., Kohler, A., and Bougeard, S. (2014). Algorithms
 #' for multi-group PLS. J. Chemometrics, 28(3), 192-201.
-#' 
+#'
 #' mixOmics article:
-#' 
+#'
 #' Rohart F, Gautier B, Singh A, Lê Cao K-A. mixOmics: an R package for 'omics
 #' feature selection and multiple data integration. PLoS Comput Biol 13(11):
 #' e1005752
 #' @keywords regression multivariate
 #' @export
 #' @examples
-#' 
+#'
 #' data(stemcells)
-#' 
-#' res = mint.plsda(X = stemcells$gene, Y = stemcells$celltype, ncomp = 3,
-#' study = stemcells$study)
-#' 
+#'
+#' res <- mint.plsda(
+#'   X = stemcells$gene, Y = stemcells$celltype, ncomp = 3,
+#'   study = stemcells$study
+#' )
+#'
 #' plotIndiv(res)
-#' 
-#' #plot study-specific outputs for all studies
+#'
+#' # plot study-specific outputs for all studies
 #' plotIndiv(res, study = "all.partial")
-#' 
+#'
 #' \dontrun{
-#' #plot study-specific outputs for study "2"
+#' # plot study-specific outputs for study "2"
 #' plotIndiv(res, study = "2", col = 1:3, legend = TRUE)
 #' }
-#' 
+#'
 mint.plsda <- function(X,
                        Y,
                        ncomp = 2,
@@ -105,85 +107,84 @@ mint.plsda <- function(X,
                        max.iter = 100,
                        near.zero.var = FALSE,
                        all.outputs = TRUE,
-                       verbose.call = FALSE)
-{
-    #-- validation des arguments --#
-    # most of the checks are done in 'internal_wrapper.mint'
-    
-    if (is.null(Y))
-        stop("'Y' has to be something else than NULL.")
-    
-    if (is.null(dim(Y)))
-    {
-        Y = factor(Y)
-    }  else {
-        stop("'Y' should be a factor or a class vector.")
-    }
-    Y.mat = unmap(Y)
-    colnames(Y.mat) = levels(Y
+                       verbose.call = FALSE) {
+  #-- validation des arguments --#
+  # most of the checks are done in 'internal_wrapper.mint'
+
+  if (is.null(Y)) {
+    stop("'Y' has to be something else than NULL.")
+  }
+
+  if (is.null(dim(Y))) {
+    Y <- factor(Y)
+  } else {
+    stop("'Y' should be a factor or a class vector.")
+  }
+  Y.mat <- unmap(Y)
+  colnames(Y.mat) <- levels(Y)
+
+  X <- as.matrix(X)
+
+  if (length(study) != nrow(X)) {
+    stop(paste0("'study' must be a factor of length ", nrow(X), "."))
+  }
+
+  if (sum(apply(table(Y, study) != 0, 2, sum) == 1) > 0) {
+    stop(
+      "At least one study only contains a single level of the multi-levels outcome Y. The MINT algorithm cannot be computed."
     )
-    
-    X = as.matrix(X)
-    
-    if (length(study) != nrow(X))
-        stop(paste0("'study' must be a factor of length ", nrow(X), "."))
-    
-    if (sum(apply(table(Y, study) != 0, 2, sum) == 1) > 0)
-        stop(
-            "At least one study only contains a single level of the multi-levels outcome Y. The MINT algorithm cannot be computed."
-        )
-    
-    if (sum(apply(table(Y, study) == 0, 2, sum) > 0) > 0)
-        warning(
-            "At least one study does not contain all the levels of the outcome Y. The MINT algorithm might not perform as expected."
-        )
-    
-    # call to 'internal_wrapper.mint'
-    result <- internal_wrapper.mint(
-        X = X,
-        Y = Y.mat,
-        study = study,
-        ncomp = ncomp,
-        scale = scale,
-        near.zero.var = near.zero.var,
-        mode = 'regression',
-        max.iter = max.iter,
-        tol = tol,
-        all.outputs = all.outputs,
-        DA = TRUE
+  }
+
+  if (sum(apply(table(Y, study) == 0, 2, sum) > 0) > 0) {
+    warning(
+      "At least one study does not contain all the levels of the outcome Y. The MINT algorithm might not perform as expected."
     )
-    
-    # choose the desired output from 'result'
-    out <- list(
-        call = match.call(),
-        X = result$A[-result$indY][[1]],
-        Y = Y,
-        ind.mat = result$A[result$indY][[1]],
-        ncomp = result$ncomp,
-        study = result$study,
-        mode = result$mode,
-        variates = result$variates,
-        loadings = result$loadings,
-        variates.partial = result$variates.partial,
-        loadings.partial = result$loadings.partial,
-        names = result$names,
-        tol = result$tol,
-        iter = result$iter,
-        max.iter = result$max.iter,
-        nzv = result$nzv,
-        scale = result$scale,
-        prop_expl_var = result$prop_expl_var
-    )
-    
-    if (verbose.call) {
-        c <- out$call
-        out$call <- mget(names(formals()))
-        out$call <- append(c, out$call)
-        names(out$call)[1] <- "simple.call"
-    }
-    
-    class(out) <- c("mint.plsda", "mixo_plsda", "mixo_pls", "DA")
-    return(invisible(out))
-    
-    
+  }
+
+  # call to 'internal_wrapper.mint'
+  result <- internal_wrapper.mint(
+    X = X,
+    Y = Y.mat,
+    study = study,
+    ncomp = ncomp,
+    scale = scale,
+    near.zero.var = near.zero.var,
+    mode = "regression",
+    max.iter = max.iter,
+    tol = tol,
+    all.outputs = all.outputs,
+    DA = TRUE
+  )
+
+  # choose the desired output from 'result'
+  out <- list(
+    call = match.call(),
+    X = result$A[-result$indY][[1]],
+    Y = Y,
+    ind.mat = result$A[result$indY][[1]],
+    ncomp = result$ncomp,
+    study = result$study,
+    mode = result$mode,
+    variates = result$variates,
+    loadings = result$loadings,
+    variates.partial = result$variates.partial,
+    loadings.partial = result$loadings.partial,
+    names = result$names,
+    tol = result$tol,
+    iter = result$iter,
+    max.iter = result$max.iter,
+    nzv = result$nzv,
+    scale = result$scale,
+    prop_expl_var = result$prop_expl_var
+  )
+
+  if (verbose.call) {
+    c <- out$call
+    out$call <- mget(names(formals()))
+    out$call <- append(c, out$call)
+    names(out$call)[1] <- "simple.call"
+  }
+
+  class(out) <- c("mint.plsda", "mixo_plsda", "mixo_pls", "DA")
+  return(invisible(out))
 }

@@ -1,12 +1,12 @@
 #' Human Stem Cells Data
-#' 
+#'
 #' This data set contains the expression of a random subset of 400 genes in 125
 #' samples from 4 independent studies and 3 cell types.
-#' 
+#'
 #' This data set contains the expression of a random subset of 400 genes in 125
 #' samples from 4 independent studies and 3 cell types. Those studies can be
 #' combined and analysed using the MINT procedure.
-#' 
+#'
 #' @name stemcells
 #' @docType data
 #' @usage data(stemcells)

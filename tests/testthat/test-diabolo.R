@@ -2,29 +2,41 @@ context("diabolo")
 
 test_that("block.splsda works", {
   data(nutrimouse)
-  Y = nutrimouse$diet
+  Y <- nutrimouse$diet
 
-  data = list(gene = nutrimouse$gene, lipid = nutrimouse$lipid)
-  design = matrix(c(0,1,1,1,0,1,1,1,0), ncol = 3, nrow = 3, byrow = TRUE,
-                  dimnames = list(c("gene", "lipid", "Y"),
-                                  c("gene", "lipid", "Y")))
+  data <- list(gene = nutrimouse$gene, lipid = nutrimouse$lipid)
+  design <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0),
+    ncol = 3, nrow = 3, byrow = TRUE,
+    dimnames = list(
+      c("gene", "lipid", "Y"),
+      c("gene", "lipid", "Y")
+    )
+  )
 
 
-  nutrimouse.sgccda <- block.splsda(X = data,
-                                    Y = Y,
-                                    design = design,
-                                    keepX = list(gene = c(10,10),
-                                                 lipid = c(15,15)),
-                                    ncomp = 2,
-                                    scheme = "centroid",
-                                    tol = 1e-30)
+  nutrimouse.sgccda <- block.splsda(
+    X = data,
+    Y = Y,
+    design = design,
+    keepX = list(
+      gene = c(10, 10),
+      lipid = c(15, 15)
+    ),
+    ncomp = 2,
+    scheme = "centroid",
+    tol = 1e-30
+  )
   expect_length(nutrimouse.sgccda, 24L)
 
-  expect_equal(names(nutrimouse.sgccda),
-               c("call", "X", "Y", "ind.mat", "ncomp", "mode", "keepX", "keepY",
-                 "variates", "loadings", "crit", "AVE", "names", "init", "tol",
-                 "iter", "max.iter", "nzv", "scale", "design", "scheme", "indY",
-                 "weights", "prop_expl_var"))
+  expect_equal(
+    names(nutrimouse.sgccda),
+    c(
+      "call", "X", "Y", "ind.mat", "ncomp", "mode", "keepX", "keepY",
+      "variates", "loadings", "crit", "AVE", "names", "init", "tol",
+      "iter", "max.iter", "nzv", "scale", "design", "scheme", "indY",
+      "weights", "prop_expl_var"
+    )
+  )
 
   expect_is(nutrimouse.sgccda$X, "list")
   expect_is(nutrimouse.sgccda$design, "matrix")
@@ -59,16 +71,20 @@ test_that("block.splsda works", {
 
   expect_equal(nutrimouse.sgccda$indY, 3L)
 
-  expect_equal(rowMeans(nutrimouse.sgccda$weights),
-               c(gene = 0.694506104274723, lipid = 0.915845972615744))
+  expect_equal(
+    rowMeans(nutrimouse.sgccda$weights),
+    c(gene = 0.694506104274723, lipid = 0.915845972615744)
+  )
 
   expect_length(nutrimouse.sgccda$prop_expl_var, 3L)
   expect_is(nutrimouse.sgccda$prop_expl_var, "list")
   expect_equal(names(nutrimouse.sgccda$prop_expl_var), colnames(design))
 
   expect_length(nutrimouse.sgccda$AVE, 3L)
-  expect_equal(names(nutrimouse.sgccda$AVE),
-               c("AVE_X", "AVE_outer", "AVE_inner"))
+  expect_equal(
+    names(nutrimouse.sgccda$AVE),
+    c("AVE_X", "AVE_outer", "AVE_inner")
+  )
   expect_equal(nutrimouse.sgccda$AVE$AVE_outer[1], 0.217938372815004)
   expect_equal(nutrimouse.sgccda$AVE$AVE_inner[1], 0.663209598406049)
   expect_equal(nutrimouse.sgccda$AVE$AVE_X$Y[1], c(`comp1` = 0.25))

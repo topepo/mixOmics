@@ -1,10 +1,10 @@
 #' 16S microbiome atherosclerosis study
-#' 
+#'
 #' The 16S data come from Koren et al. (2011) and compared the bodysites oral,
 #' gut and plaque microbial communities in patients with atherosclerosis. The
 #' data can be analysed with our mixMC module. The data include 43 samples
 #' measured on 980 OTUs.
-#' 
+#'
 #' The data are from Koren et al. (2011) who examined the link between oral,
 #' gut and plaque microbial communities in patients with atherosclerosis and
 #' controls. Only healthy individuals were retained in the analysis. This study
@@ -15,12 +15,12 @@
 #' data included 973 OTU for 43 samples. We strongly recommend to use log ratio
 #' transformations on the \code{data.TSS} normalisd data, as implemented in the
 #' PLS and PCA methods, see details on \url{ www.mixOmics.org/mixMC}.
-#' 
+#'
 #' The \code{data.raw} include a 1 offset in order to be log ratios transformed
 #' after TSS normalisation. Consequently, the \code{data.TSS} are TSS
 #' normalisation of \code{data.raw}. The CSS normalisation was performed on the
 #' orignal data (including zero values)
-#' 
+#'
 #' @name Koren.16S
 #' @docType data
 #' @usage data(Koren.16S)
@@ -39,7 +39,7 @@
 #' @references Lê Cao K.-A., Costello ME, Lakis VA, Bartolo, F,Chua XY,
 #' Brazeilles R, Rondeau P. MixMC: Multivariate insights into Microbial
 #' Communities. PLoS ONE, 11(8): e0160169 (2016).
-#' 
+#'
 #' Koren, O., Spor, A., Felin, J., Fak, F., Stombaugh, J., Tremaroli, V., et
 #' al.: Human oral, gut, and plaque microbiota in patients with
 #' atherosclerosis. Proceedings of the National Academy of Sciences

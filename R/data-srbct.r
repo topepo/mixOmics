@@ -1,9 +1,9 @@
 #' Small version of the small round blue cell tumors of childhood data
-#' 
+#'
 #' This data set from Khan \emph{et al.}, (2001) gives the expression measure
 #' of 2308 genes measured on 63 samples.
-#' 
-#' 
+#'
+#'
 #' @name srbct
 #' @docType data
 #' @usage data(srbct)

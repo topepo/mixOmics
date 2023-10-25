@@ -5,33 +5,33 @@
 # ========================================================================================================
 
 #' P-integration
-#' 
+#'
 #' Function to integrate and combine multiple independent studies measured on
 #' the same variables or predictors (P-integration) using variants of
 #' multi-group PLS (unsupervised analysis).
-#' 
+#'
 #' \code{mint.pls} fits a vertical PLS-DA models with \code{ncomp} components
 #' in which several independent studies measured on the same variables are
 #' integrated. The aim is to explain the continuous outcome \code{Y}. The
 #' \code{study} factor indicates the membership of each sample in each study.
 #' We advise to only combine studies with more than 3 samples as the function
 #' performs internal scaling per study.
-#' 
+#'
 #' Multi (continuous)response are supported. \code{X} and \code{Y} can contain
 #' missing values. Missing values are handled by being disregarded during the
 #' cross product computations in the algorithm \code{mint.pls} without having
 #' to delete rows with missing data. Alternatively, missing data can be imputed
 #' prior using the \code{nipals} function.
-#' 
+#'
 #' The type of algorithm to use is specified with the \code{mode} argument.
 #' Four PLS algorithms are available: PLS regression \code{("regression")}, PLS
 #' canonical analysis \code{("canonical")}, redundancy analysis
 #' \code{("invariant")} and the classical PLS algorithm \code{("classic")} (see
 #' References and more details in \code{?pls}).
-#' 
+#'
 #' Useful graphical outputs are available, e.g. \code{\link{plotIndiv}},
 #' \code{\link{plotLoadings}}, \code{\link{plotVar}}.
-#' 
+#'
 #' @inheritParams pls
 #' @param X numeric matrix of predictors combining multiple independent studies
 #' on the same set of predictors. \code{NA}s are allowed.
@@ -43,7 +43,7 @@
 #' @template arg/verbose.call
 #' @return \code{mint.pls} returns an object of class \code{"mint.pls", "pls"},
 #' a list that contains the following components:
-#' 
+#'
 #' \item{X}{the centered and standardized original predictor matrix.}
 #' \item{Y}{the centered and standardized original response vector or matrix.}
 #' \item{ncomp}{the number of components included in the model.}
@@ -72,28 +72,30 @@
 #' MINT: A multivariate integrative approach to identify a reproducible
 #' biomarker signature across multiple experiments and platforms. BMC
 #' Bioinformatics 18:128.
-#' 
+#'
 #' Eslami, A., Qannari, E. M., Kohler, A., and Bougeard, S. (2014). Algorithms
 #' for multi-group PLS. J. Chemometrics, 28(3), 192-201.
 #' @keywords regression multivariate
 #' @export
 #' @examples
-#' 
+#'
 #' data(stemcells)
-#' 
+#'
 #' # for the purpose of this example, we artificially
 #' # create a continuous response Y by taking gene 1.
-#' 
-#' res = mint.pls(X = stemcells$gene[,-1], Y = stemcells$gene[,1], ncomp = 3,
-#' study = stemcells$study)
-#' 
+#'
+#' res <- mint.pls(
+#'   X = stemcells$gene[, -1], Y = stemcells$gene[, 1], ncomp = 3,
+#'   study = stemcells$study
+#' )
+#'
 #' plotIndiv(res)
-#' 
-#' #plot study-specific outputs for all studies
+#'
+#' # plot study-specific outputs for all studies
 #' plotIndiv(res, study = "all.partial")
-#' 
+#'
 #' \dontrun{
-#' #plot study-specific outputs for study "2"
+#' # plot study-specific outputs for study "2"
 #' plotIndiv(res, study = "2", col = 1:3, legend = TRUE)
 #' }
 mint.pls <- function(X,
@@ -106,54 +108,50 @@ mint.pls <- function(X,
                      max.iter = 100,
                      near.zero.var = FALSE,
                      all.outputs = TRUE,
-                     verbose.call = FALSE)
-{
-    
-    # call to 'internal_wrapper.mint'
-    result = internal_wrapper.mint(
-        X = X,
-        Y = Y,
-        ncomp = ncomp,
-        scale = scale,
-        near.zero.var = near.zero.var,
-        study = study,
-        mode = mode,
-        max.iter = max.iter,
-        tol = tol,
-        all.outputs = all.outputs,
-        DA = FALSE
-    )
-    
-    # choose the desired output from 'result'
-    out = list(
-        call = match.call(),
-        X = result$A[-result$indY][[1]],
-        Y = result$A[result$indY][[1]],
-        ncomp = result$ncomp,
-        study = result$study,
-        mode = result$mode,
-        variates = result$variates,
-        loadings = result$loadings,
-        variates.partial = result$variates.partial,
-        loadings.partial = result$loadings.partial,
-        names = result$names,
-        tol = result$tol,
-        iter = result$iter,
-        max.iter = result$max.iter,
-        nzv = result$nzv,
-        scale = result$scale,
-        prop_expl_var = result$prop_expl_var
-    )
-    
-    if (verbose.call) {
-        c <- out$call
-        out$call <- mget(names(formals()))
-        out$call <- append(c, out$call)
-        names(out$call)[1] <- "simple.call"
-    }
-    
-    class(out) = c("mint.pls","mixo_pls")
-    return(invisible(out))
-    
-    
+                     verbose.call = FALSE) {
+  # call to 'internal_wrapper.mint'
+  result <- internal_wrapper.mint(
+    X = X,
+    Y = Y,
+    ncomp = ncomp,
+    scale = scale,
+    near.zero.var = near.zero.var,
+    study = study,
+    mode = mode,
+    max.iter = max.iter,
+    tol = tol,
+    all.outputs = all.outputs,
+    DA = FALSE
+  )
+
+  # choose the desired output from 'result'
+  out <- list(
+    call = match.call(),
+    X = result$A[-result$indY][[1]],
+    Y = result$A[result$indY][[1]],
+    ncomp = result$ncomp,
+    study = result$study,
+    mode = result$mode,
+    variates = result$variates,
+    loadings = result$loadings,
+    variates.partial = result$variates.partial,
+    loadings.partial = result$loadings.partial,
+    names = result$names,
+    tol = result$tol,
+    iter = result$iter,
+    max.iter = result$max.iter,
+    nzv = result$nzv,
+    scale = result$scale,
+    prop_expl_var = result$prop_expl_var
+  )
+
+  if (verbose.call) {
+    c <- out$call
+    out$call <- mget(names(formals()))
+    out$call <- append(c, out$call)
+    names(out$call)[1] <- "simple.call"
+  }
+
+  class(out) <- c("mint.pls", "mixo_pls")
+  return(invisible(out))
 }

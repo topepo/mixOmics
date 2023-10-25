@@ -1,8 +1,8 @@
 #' Yeast metabolomic study
-#' 
+#'
 #' Two Saccharomyces Cerevisiae strains were compared under two different
 #' environmental conditions, 37 metabolites expression are measured.
-#' 
+#'
 #' In this study, two Saccharomyces cerevisiae strains were used - wild-type
 #' (WT) and mutant (MT), and were carried out in batch cultures under two
 #' different environmental conditions, aerobic (AER) and anaerobic (ANA) in
@@ -10,7 +10,7 @@
 #' normalization and pre processing, the metabolomic data results in 37
 #' metabolites and 55 samples which include 13 MT-AER, 14 MT-ANA, 15 WT-AER and
 #' 13 WT-ANA samples
-#' 
+#'
 #' @name yeast
 #' @docType data
 #' @usage data(yeast)

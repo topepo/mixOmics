@@ -1,5 +1,5 @@
 #' Vaccine study Data
-#' 
+#'
 #' The data come from a trial evaluating a vaccine based on HIV-1 lipopeptides
 #' in HIV-negative volunteers. The vaccine (HIV-1 LIPO-5 ANRS vaccine) contains
 #' five HIV-1 amino acid sequences coding for Gag, Pol and Nef proteins. This
@@ -10,9 +10,9 @@
 #' peptides included in the vaccine (LIPO-5), or (2) the Gag peptides included
 #' in the vaccine (GAG+) or (3) the Gag peptides not included in the vaccine
 #' (GAG-) or (4) without any stimulation (NS).
-#' 
+#'
 #' This is a subset of the original study for illustrative purposes.
-#' 
+#'
 #' @name vac18
 #' @docType data
 #' @usage data(vac18)

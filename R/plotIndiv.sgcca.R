@@ -43,11 +43,8 @@ plotIndiv.sgcca <-
            legend.title.pch = "Legend",
            legend.position = "right",
            point.lwd = 1,
-           ...
-           
-  )
-  {
-    plot_parameters = list(
+           ...) {
+    plot_parameters <- list(
       size.title = size.title,
       size.subtitle = size.subtitle,
       size.xlabel = size.xlabel,
@@ -61,58 +58,60 @@ plotIndiv.sgcca <-
       point.lwd = point.lwd,
       alpha = alpha
     )
-    
-    if (any(class(object)%in%c("mint.block.pls", "mint.block.spls", "mint.block.plsda", "mint.block.splsda")))
+
+    if (any(class(object) %in% c("mint.block.pls", "mint.block.spls", "mint.block.plsda", "mint.block.splsda"))) {
       stop("No plotIndiv for the following functions at this stage: mint.block.pls, mint.block.spls, mint.block.plsda, mint.block.splsda.")
-    
+    }
+
     #-- rep.space
-    rep.space = "multi" # rep.space is not used afterwards, put to "multi" to plot all blocks
-    
+    rep.space <- "multi" # rep.space is not used afterwards, put to "multi" to plot all blocks
+
     input_average_blocks <- NULL
-    valid_average_blocks <- c('average', 'weighted.average')
-    
-    if (is.null(blocks))
-    {
-      blocks = names(object$X)#names$blocks
-    } else if (is.numeric(blocks) & min(blocks) > 0 &  max(blocks) <=  length(object$names$blocks)) {
-      blocks = object$names$blocks[blocks]
+    valid_average_blocks <- c("average", "weighted.average")
+
+    if (is.null(blocks)) {
+      blocks <- names(object$X) # names$blocks
+    } else if (is.numeric(blocks) & min(blocks) > 0 & max(blocks) <= length(object$names$blocks)) {
+      blocks <- object$names$blocks[blocks]
     } else if (is.character(blocks)) {
       if (any(grepl(blocks, pattern = "average", ignore.case = TRUE))) {
         input_average_blocks <- match.arg(blocks, choices = valid_average_blocks, several.ok = TRUE)
         supported.classes <- c("sgcca", "rgcca", "sgccda")
-        if (! any(supported.classes %in% class(object)) ){
+        if (!any(supported.classes %in% class(object))) {
           stop(sprintf("average plots are supported for objects of classes: %s", paste(supported.classes, collapse = ", ")), call. = FALSE)
         }
         object <- .add_average_blocks(block_object = object, average_blocks = input_average_blocks)
       }
       invalid_blocks <- setdiff(blocks, object$names$blocks)
-      if (length(invalid_blocks) > 0  ) {
+      if (length(invalid_blocks) > 0) {
         valid_blocks <- object$names$blocks
-        stop(sprintf("Block(s) not found: %s. Blocks must be a selection of: %s, average, or weighted.average", paste(invalid_blocks , collapse = ', '), paste(valid_blocks, collapse = ', ')))
+        stop(sprintf("Block(s) not found: %s. Blocks must be a selection of: %s, average, or weighted.average", paste(invalid_blocks, collapse = ", "), paste(valid_blocks, collapse = ", ")))
       }
     } else {
       stop("Incorrect value for 'blocks'", call. = FALSE)
     }
-    #object$variates = object$variates[names(object$variates) %in% blocks] # reduce the variate to the 'blocks' we are looking at
-    object$variates = object$variates[match(blocks, names(object$variates))] # reduce the variate to the 'blocks' we are looking at
-    if (any(object$ncomp[blocks] ==  1))
+    # object$variates = object$variates[names(object$variates) %in% blocks] # reduce the variate to the 'blocks' we are looking at
+    object$variates <- object$variates[match(blocks, names(object$variates))] # reduce the variate to the 'blocks' we are looking at
+    if (any(object$ncomp[blocks] == 1)) {
       stop(paste("The number of components for one selected block '", paste(blocks, collapse = " - "), "' is 1. The number of components must be superior or equal to 2."), call. = FALSE)
-    ncomp = object$ncomp[blocks]
-    
-    
-    if(length(blocks)!= length(unique(blocks)))
-      stop("Duplicate in 'blocks' not allowed")
-    
-    if(!missing(subtitle))
-    {
-      if(length(subtitle)!= length(blocks) | length(subtitle)!= length(unique(subtitle)))
-        stop("'subtitle' indicates the subtitle of the plot for each 'blocks'; it needs to be the same length as 'blocks' and duplicate are not allowed.")
     }
-    
-    
-    
+    ncomp <- object$ncomp[blocks]
+
+
+    if (length(blocks) != length(unique(blocks))) {
+      stop("Duplicate in 'blocks' not allowed")
+    }
+
+    if (!missing(subtitle)) {
+      if (length(subtitle) != length(blocks) | length(subtitle) != length(unique(subtitle))) {
+        stop("'subtitle' indicates the subtitle of the plot for each 'blocks'; it needs to be the same length as 'blocks' and duplicate are not allowed.")
+      }
+    }
+
+
+
     #-- check inputs
-    check = check.input.plotIndiv(
+    check <- check.input.plotIndiv(
       object = object,
       comp = comp,
       blocks = blocks,
@@ -134,16 +133,16 @@ plotIndiv.sgcca <-
       plot_parameters = plot_parameters
     )
     #-- retrieve outputs from the checks
-    axes.box = check$axes.box
-    comp = check$comp
-    xlim = check$xlim
-    ylim = check$ylim
-    ind.names = check$ind.names
-    display.names = check$display.names
-    
-    
+    axes.box <- check$axes.box
+    comp <- check$comp
+    xlim <- check$xlim
+    ylim <- check$ylim
+    ind.names <- check$ind.names
+    display.names <- check$display.names
+
+
     #-- get the variates
-    variate = internal_getVariatesAndLabels(
+    variate <- internal_getVariatesAndLabels(
       object,
       comp,
       blocks = blocks,
@@ -154,17 +153,17 @@ plotIndiv.sgcca <-
       rep.space = rep.space
     )
     #-- retrieve outputs
-    x = variate$x
-    y = variate$y
-    z = variate$z
-    X.label = variate$X.label
-    Y.label = variate$Y.label
-    Z.label = variate$Z.label
-    
-    n = nrow(object$X[[1]])
-    
+    x <- variate$x
+    y <- variate$y
+    z <- variate$z
+    X.label <- variate$X.label
+    Y.label <- variate$Y.label
+    Z.label <- variate$Z.label
+
+    n <- nrow(object$X[[1]])
+
     # create data frame df that contains (almost) all the ploting information
-    out = shape.input.plotIndiv(
+    out <- shape.input.plotIndiv(
       object = object,
       n = n,
       blocks = blocks,
@@ -191,49 +190,57 @@ plotIndiv.sgcca <-
       plot_parameters = plot_parameters
     )
     #-- retrieve outputs
-    df = out$df
-    df.ellipse = out$df.ellipse
-    col.per.group = out$col.per.group
-    title = out$title
-    display.names = out$display.names
-    xlim = out$xlim
-    ylim = out$ylim
-    #missing.col = out$missing.col
-    ellipse = out$ellipse
-    centroid = out$centroid
-    star = out$star
-    plot_parameters = out$plot_parameters
-    
+    df <- out$df
+    df.ellipse <- out$df.ellipse
+    col.per.group <- out$col.per.group
+    title <- out$title
+    display.names <- out$display.names
+    xlim <- out$xlim
+    ylim <- out$ylim
+    # missing.col = out$missing.col
+    ellipse <- out$ellipse
+    centroid <- out$centroid
+    star <- out$star
+    plot_parameters <- out$plot_parameters
+
     if (!is.null(input_average_blocks)) {
       ## ------ drop 'Block: ' from average labels
       df$Block <- as.character(df$Block)
-      
-      df$Block[df$Block == 'Block: weighted.average'] <- 'average (weighted)'
-      df.ellipse$Block[df.ellipse$Block == 'Block: weighted.average'] <- 'average (weighted)'
-      
-      df$Block[df$Block == 'Block: average'] <- 'average'
-      df.ellipse$Block[df.ellipse$Block == 'Block: average'] <- 'average'
-      
+
+      df$Block[df$Block == "Block: weighted.average"] <- "average (weighted)"
+      df.ellipse$Block[df.ellipse$Block == "Block: weighted.average"] <- "average (weighted)"
+
+      df$Block[df$Block == "Block: average"] <- "average"
+      df.ellipse$Block[df.ellipse$Block == "Block: average"] <- "average"
+
       df$Block <- factor(df$Block)
-      
+
       ## ------ drop explained variance on axes if only average asked
       if (length(unique(df$Block)) == 1) {
-        if (grepl("% expl. var", X.label)) { X.label <- 'variate 1 - average' }
-        if (grepl("% expl. var", Y.label)) { Y.label <- 'variate 2 - average' }
-        if (style=="3d") { if (grepl("% expl. var", Z.label)) { Z.label <- 'variate 3 - average' } }
+        if (grepl("% expl. var", X.label)) {
+          X.label <- "variate 1 - average"
+        }
+        if (grepl("% expl. var", Y.label)) {
+          Y.label <- "variate 2 - average"
+        }
+        if (style == "3d") {
+          if (grepl("% expl. var", Z.label)) {
+            Z.label <- "variate 3 - average"
+          }
+        }
       }
     }
-    
+
     # change the levels of df.final$Block to "subtitle"
-    if(!missing(subtitle))
-    {
-      df$Block = factor(df$Block, labels = subtitle)
-      if(ellipse)
-        df.ellipse$Block = factor(df.ellipse$Block, labels = subtitle)
+    if (!missing(subtitle)) {
+      df$Block <- factor(df$Block, labels = subtitle)
+      if (ellipse) {
+        df.ellipse$Block <- factor(df.ellipse$Block, labels = subtitle)
+      }
     }
-    
-    #call plot module (ggplot2, lattice, graphics, 3d)
-    res = internal_graphicModule(
+
+    # call plot module (ggplot2, lattice, graphics, 3d)
+    res <- internal_graphicModule(
       df = df,
       centroid = centroid,
       col.per.group = col.per.group,
@@ -252,15 +259,13 @@ plotIndiv.sgcca <-
       df.ellipse = df.ellipse,
       style = style,
       layout = layout,
-      #missing.col = missing.col,
+      # missing.col = missing.col,
       axes.box = axes.box,
       plot_parameters = plot_parameters,
       alpha = alpha
     )
-    
+
     return(invisible(list(df = df, df.ellipse = df.ellipse, graph = res)))
-    
-    
   }
 
 #' @rdname plotIndiv

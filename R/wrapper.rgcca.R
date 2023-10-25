@@ -1,17 +1,17 @@
 #' mixOmics wrapper for Regularised Generalised Canonical Correlation Analysis
 #' (rgcca)
-#' 
+#'
 #' Wrapper function to perform Regularized Generalised Canonical Correlation
 #' Analysis (rGCCA), a generalised approach for the integration of multiple
 #' datasets. For more details, see the \code{help(rgcca)} from the \pkg{RGCCA}
 #' package.
-#' 
+#'
 #' This wrapper function performs rGCCA (see \pkg{RGCCA}) with \eqn{1, \ldots
 #' ,}\code{ncomp} components on each block data set. A supervised or
 #' unsupervised model can be run. For a supervised model, the
 #' \code{\link{unmap}} function should be used as an input data set. More
 #' details can be found on the package \pkg{RGCCA}.
-#' 
+#'
 #' @param X a list of data sets (called 'blocks') matching on the same samples.
 #' Data in the list should be arranged in samples x variables. \code{NA}s are
 #' not allowed.
@@ -45,7 +45,7 @@
 #' (and non-essential) outputs are not calculated. Default = \code{TRUE}.
 #' @return \code{wrapper.rgcca} returns an object of class \code{"rgcca"}, a
 #' list that contains the following components:
-#' 
+#'
 #' \item{data}{the input data set (as a list).} \item{design}{the input
 #' design.} \item{variates}{the sgcca components.} \item{loadings}{the loadings
 #' for each block data set (outer wieght vector).} \item{loadings.star}{the
@@ -56,7 +56,7 @@
 #' Variance Explained (AVE): AVE(for one block), AVE(outer model), AVE(inner
 #' model)..} \item{names}{list containing the names to be used for individuals
 #' and variables.} More details can be found in the references.
-#' @author Arthur Tenenhaus, Vincent Guillemot, Kim-Anh Lê Cao, 
+#' @author Arthur Tenenhaus, Vincent Guillemot, Kim-Anh Lê Cao,
 #' Florian Rohart, Benoit Gautier
 #' @seealso \code{\link{wrapper.rgcca}}, \code{\link{plotIndiv}},
 #' \code{\link{plotVar}}, \code{\link{wrapper.sgcca}} and
@@ -64,7 +64,7 @@
 #' @references
 #' Tenenhaus A. and Tenenhaus M., (2011), Regularized Generalized Canonical
 #' Correlation Analysis, Psychometrika, Vol. 76, Nr 2, pp 257-284.
-#' 
+#'
 #' Schafer J. and Strimmer K., (2005), A shrinkage approach to large-scale
 #' covariance matrix estimation and implications for functional genomics.
 #' Statist. Appl. Genet. Mol. Biol. 4:32.
@@ -73,97 +73,100 @@
 #' @examples
 #' data(nutrimouse)
 #' # need to unmap the Y factor diet
-#' Y = unmap(nutrimouse$diet)
-#' data = list(gene = nutrimouse$gene, lipid = nutrimouse$lipid, Y = Y)
+#' Y <- unmap(nutrimouse$diet)
+#' data <- list(gene = nutrimouse$gene, lipid = nutrimouse$lipid, Y = Y)
 #' # with this design, gene expression and lipids are connected to the diet factor
 #' # design = matrix(c(0,0,1,
 #' #                   0,0,1,
 #' #                   1,1,0), ncol = 3, nrow = 3, byrow = TRUE)
-#' 
+#'
 #' # with this design, gene expression and lipids are connected to the diet factor
 #' # and gene expression and lipids are also connected
-#' design = matrix(c(0,1,1,
-#' 1,0,1,
-#' 1,1,0), ncol = 3, nrow = 3, byrow = TRUE)
-#' #note: the tau parameter is the regularization parameter
-#' wrap.result.rgcca = wrapper.rgcca(X = data, design = design, tau = c(1, 1, 0),
-#' ncomp = 2,
-#' scheme = "centroid")
-#' #wrap.result.rgcca
-#' 
+#' design <- matrix(c(
+#'   0, 1, 1,
+#'   1, 0, 1,
+#'   1, 1, 0
+#' ), ncol = 3, nrow = 3, byrow = TRUE)
+#' # note: the tau parameter is the regularization parameter
+#' wrap.result.rgcca <- wrapper.rgcca(
+#'   X = data, design = design, tau = c(1, 1, 0),
+#'   ncomp = 2,
+#'   scheme = "centroid"
+#' )
+#' # wrap.result.rgcca
+#'
 wrapper.rgcca <-
-    function(
-        X,
-        design = 1 - diag(length(X)),
-        tau = rep(1, length(X)),
-        ncomp = 1,
-        keepX,
-        scheme = "horst",
-        scale = TRUE,
-        init = "svd.single",
-        tol = .Machine$double.eps,
-        max.iter = 1000,
-        near.zero.var = FALSE,
-        all.outputs = TRUE)
-    {
-        
-        
-        check = Check.entry.rgcca(X = X, design = design, tau = tau, ncomp = ncomp, scheme = scheme, scale = scale,
-                                  init = init, tol = tol, max.iter = max.iter, near.zero.var = near.zero.var,keepX = keepX)
-        X = check$A
-        ncomp = check$ncomp
-        design = check$design
-        init = check$init
-        scheme = check$scheme
-        nzv.A = check$nzv.A
-        keepA = check$keepA
-        
-        keepA.save=keepA
-        
-        keepAA = vector("list", length = max(ncomp)) # one keepA per comp
-        names(keepAA) = paste0("comp",1:max(ncomp))
-        for(comp in 1:max(ncomp)) # keepA[[block]] [1:ncomp]
-            keepAA[[comp]] = lapply(keepA, function(x) x[comp])
-        
-        keepA = lapply(keepAA, expand.grid)
-        
-        result.rgcca = internal_mint.block(A = X, design = design, tau = tau,
-                                           ncomp = ncomp,
-                                           scheme = scheme, scale = scale,
-                                           init = init, tol = tol, keepA = keepA,
-                                           max.iter = max.iter,
-                                           study = factor(rep(1,nrow(X[[1]]))),#mint.rgcca not coded yet
-                                           mode = "canonical",
-                                           all.outputs = all.outputs
-        )
-        
-        
-        out = list(
-            call = match.call(),
-            X = result.rgcca$A,
-            variates = result.rgcca$variates,
-            loadings = result.rgcca$loadings,
-            loadings.star = result.rgcca$loadings.star,
-            keepX=keepA.save,
-            design = result.rgcca$design,
-            tau = result.rgcca$tau,
-            scheme = result.rgcca$scheme,
-            ncomp = result.rgcca$ncomp,
-            crit = result.rgcca$crit,
-            AVE = result.rgcca$AVE,
-            names = result.rgcca$names,#names = list(indiv = rownames(X[[1]]), var = sapply(X, colnames)),
-            init = result.rgcca$init,
-            tol = result.rgcca$tol,
-            iter = result.rgcca$iter,
-            max.iter = result.rgcca$max.iter,
-            nzv = result.rgcca$nzv,
-            scale = result.rgcca$scale,
-            design = result.rgcca$design,
-            scheme = result.rgcca$scheme,
-            prop_expl_var = result.rgcca$prop_expl_var
-        )
-        
-        class(out) = c("sparse.rgcca","rgcca")
-        return(invisible(out))
+  function(X,
+           design = 1 - diag(length(X)),
+           tau = rep(1, length(X)),
+           ncomp = 1,
+           keepX,
+           scheme = "horst",
+           scale = TRUE,
+           init = "svd.single",
+           tol = .Machine$double.eps,
+           max.iter = 1000,
+           near.zero.var = FALSE,
+           all.outputs = TRUE) {
+    check <- Check.entry.rgcca(
+      X = X, design = design, tau = tau, ncomp = ncomp, scheme = scheme, scale = scale,
+      init = init, tol = tol, max.iter = max.iter, near.zero.var = near.zero.var, keepX = keepX
+    )
+    X <- check$A
+    ncomp <- check$ncomp
+    design <- check$design
+    init <- check$init
+    scheme <- check$scheme
+    nzv.A <- check$nzv.A
+    keepA <- check$keepA
+
+    keepA.save <- keepA
+
+    keepAA <- vector("list", length = max(ncomp)) # one keepA per comp
+    names(keepAA) <- paste0("comp", 1:max(ncomp))
+    for (comp in 1:max(ncomp)) { # keepA[[block]] [1:ncomp]
+      keepAA[[comp]] <- lapply(keepA, function(x) x[comp])
     }
 
+    keepA <- lapply(keepAA, expand.grid)
+
+    result.rgcca <- internal_mint.block(
+      A = X, design = design, tau = tau,
+      ncomp = ncomp,
+      scheme = scheme, scale = scale,
+      init = init, tol = tol, keepA = keepA,
+      max.iter = max.iter,
+      study = factor(rep(1, nrow(X[[1]]))), # mint.rgcca not coded yet
+      mode = "canonical",
+      all.outputs = all.outputs
+    )
+
+
+    out <- list(
+      call = match.call(),
+      X = result.rgcca$A,
+      variates = result.rgcca$variates,
+      loadings = result.rgcca$loadings,
+      loadings.star = result.rgcca$loadings.star,
+      keepX = keepA.save,
+      design = result.rgcca$design,
+      tau = result.rgcca$tau,
+      scheme = result.rgcca$scheme,
+      ncomp = result.rgcca$ncomp,
+      crit = result.rgcca$crit,
+      AVE = result.rgcca$AVE,
+      names = result.rgcca$names, # names = list(indiv = rownames(X[[1]]), var = sapply(X, colnames)),
+      init = result.rgcca$init,
+      tol = result.rgcca$tol,
+      iter = result.rgcca$iter,
+      max.iter = result.rgcca$max.iter,
+      nzv = result.rgcca$nzv,
+      scale = result.rgcca$scale,
+      design = result.rgcca$design,
+      scheme = result.rgcca$scheme,
+      prop_expl_var = result.rgcca$prop_expl_var
+    )
+
+    class(out) <- c("sparse.rgcca", "rgcca")
+    return(invisible(out))
+  }

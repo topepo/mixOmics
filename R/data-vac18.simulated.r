@@ -1,12 +1,12 @@
 #' Simulated data based on the vac18 study for multilevel analysis
-#' 
+#'
 #' Simulated data based on the vac18 study to illustrate the use of the
 #' multilevel analysis for one and two-factor analysis with sPLS-DA. This data
 #' set contains the expression simulated of 500 genes.
-#' 
+#'
 #' In this cross-over design, repeated measurements are performed 12
 #' experiments units (or unique subjects) for each of the 4 stimulations.
-#' 
+#'
 #' The simulation study was based on a mixed effects model (see reference for
 #' details). Ten clusters of 100 genes were generated. Amongt those, 4 clusters
 #' of genes discriminate the 4 stimulations (denoted LIPO5, GAG+, GAG- and NS)
@@ -15,9 +15,9 @@
 #' the same effect \ -2 gene clusters discriminate GAG- versus NS, while LIPO5
 #' and GAG+ have the same effect \ -the 4 remaining clusters represent noisy
 #' signal (no stimulation effect) \
-#' 
+#'
 #' Only a subset of those genes are presented here (to save memory space).
-#' 
+#'
 #' @name vac18.simulated
 #' @docType data
 #' @usage data(vac18.simulated)

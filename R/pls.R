@@ -4,60 +4,60 @@
 # ========================================================================================================
 
 #' Partial Least Squares (PLS) Regression
-#' 
+#'
 #' Function to perform Partial Least Squares (PLS) regression.
-#' 
+#'
 #' \code{pls} function fit PLS models with \eqn{1, \ldots ,}\code{ncomp}
 #' components. Multi-response models are fully supported. The \code{X} and
 #' \code{Y} datasets can contain missing values.
-#' 
+#'
 #' The type of algorithm to use is specified with the \code{mode} argument.
 #' Four PLS algorithms are available: PLS regression \code{("regression")}, PLS
 #' canonical analysis \code{("canonical")}, redundancy analysis
 #' \code{("invariant")} and the classical PLS algorithm \code{("classic")} (see
 #' References). Different modes relate on how the Y matrix is deflated across
 #' the iterations of the algorithms - i.e. the different components.
-#' 
+#'
 #' - Regression mode: the Y matrix is deflated with respect to the information
 #' extracted/modelled from the local regression on X. Here the goal is to
 #' predict Y from X (Y and X play an asymmetric role). Consequently the latent
 #' variables computed to predict Y from X are different from those computed to
 #' predict X from Y.
-#' 
+#'
 #' - Canonical mode: the Y matrix is deflated to the information
 #' extracted/modelled from the local regression on Y. Here X and Y play a
 #' symmetric role and the goal is similar to a Canonical Correlation type of
 #' analysis.
-#' 
+#'
 #' - Invariant mode: the Y matrix is not deflated
-#' 
+#'
 #' - Classic mode: is similar to a regression mode. It gives identical results
 #' for the variates and loadings associated to the X data set, but differences
 #' for the loadings vectors associated to the Y data set (different
 #' normalisations are used). Classic mode is the PLS2 model as defined by
 #' Tenenhaus (1998), Chap 9.
-#' 
+#'
 #' Note that in all cases the results are the same on the first component as
 #' deflation only starts after component 1.
-#' 
-#' @section missing values: 
+#'
+#' @section missing values:
 #' The estimation of the missing values can be performed using the
 #' \code{\link{impute.nipals}} function. Otherwise, missing values are handled
 #' by element-wise deletion in the \code{pls} function without having to delete
 #' the rows with missing data.
-#' 
+#'
 #' @section multilevel:
 #' Multilevel (s)PLS enables the integration of data measured on two different
 #' data sets on the same individuals. This approach differs from multilevel
 #' sPLS-DA as the aim is to select subsets of variables from both data sets that
 #' are highly positively or negatively correlated across samples. The approach
 #' is unsupervised, i.e. no prior knowledge about the sample groups is included.
-#' 
-#' @section logratio and multilevel: 
+#'
+#' @section logratio and multilevel:
 #' logratio transform and multilevel analysis are performed sequentially as
 #' internal pre-processing step, through \code{\link{logratio.transfo}} and
 #' \code{\link{withinVariation}} respectively.
-#' 
+#'
 #' @template arg/X.matrix
 #' @template arg/Y.matrix
 #' @template arg/ncomp
@@ -77,7 +77,7 @@
 #' @template arg/verbose.call
 #' @return \code{pls} returns an object of class \code{"pls"}, a list that
 #' contains the following components:
-#' 
+#'
 #' \item{call}{if \code{verbose.call = FALSE}, then just the function call is returned.
 #' If \code{verbose.call = TRUE} then all the inputted values are accessable via
 #' this component}
@@ -116,11 +116,11 @@
 #' http://www.mixOmics.org for more details.
 #' @references Tenenhaus, M. (1998). \emph{La regression PLS: theorie et
 #' pratique}. Paris: Editions Technic.
-#' 
+#'
 #' Wold H. (1966). Estimation of principal components and related models by
 #' iterative least squares. In: Krishnaiah, P. R. (editors), \emph{Multivariate
 #' Analysis}. Academic Press, N.Y., 391-420.
-#' 
+#'
 #' Abdi H (2010). Partial least squares regression and projection on latent
 #' structure regression (PLS Regression). \emph{Wiley Interdisciplinary
 #' Reviews: Computational Statistics}, 2(1), 97-106.
@@ -131,14 +131,14 @@
 #' X <- linnerud$exercise
 #' Y <- linnerud$physiological
 #' linn.pls <- pls(X, Y, mode = "classic")
-#' 
+#'
 #' \dontrun{
 #' data(liver.toxicity)
 #' X <- liver.toxicity$gene
 #' Y <- liver.toxicity$clinic
 #' toxicity.pls <- pls(X, Y, ncomp = 3)
 #' }
-#' 
+#'
 pls <- function(X,
                 Y,
                 ncomp = 2,
@@ -151,62 +151,59 @@ pls <- function(X,
                 # one of "none", "CLR"
                 multilevel = NULL,
                 all.outputs = TRUE,
-                verbose.call = FALSE)
-{
-    # call to 'internal_wrapper.mint'
-    result = internal_wrapper.mint(
-        X = X,
-        Y = Y,
-        ncomp = ncomp,
-        scale = scale,
-        near.zero.var = near.zero.var,
-        mode = mode,
-        max.iter = max.iter,
-        tol = tol,
-        logratio = logratio,
-        multilevel = multilevel,
-        DA = FALSE,
-        all.outputs = all.outputs
-    )
-    
-    # choose the desired output from 'result'
-    out = list(
-        call = match.call(),
-        X = result$A[-result$indY][[1]],
-        Y = result$A[result$indY][[1]],
-        ncomp = result$ncomp,
-        mode = result$mode,
-        variates = result$variates,
-        loadings = result$loadings,
-        loadings.star = result$loadings.star,
-        names = result$names,
-        tol = result$tol,
-        iter = result$iter,
-        max.iter = result$max.iter,
-        nzv = result$nzv,
-        scale = scale,
-        logratio = logratio,
-        prop_expl_var = result$prop_expl_var,
-        input.X = result$input.X,
-        mat.c = result$mat.c#,
-        #defl.matrix = result$defl.matrix
-    )
-    
-    if (verbose.call) {
-        c <- out$call
-        out$call <- mget(names(formals()))
-        out$call <- append(c, out$call)
-        names(out$call)[1] <- "simple.call"
-    }
-    
-    class(out) = c("mixo_pls")
-    # output if multilevel analysis
-    if (!is.null(multilevel))
-    {
-        out$multilevel = multilevel
-        class(out) = c("mixo_mlpls",class(out))
-    }
-    
-    return(invisible(out))
-    
+                verbose.call = FALSE) {
+  # call to 'internal_wrapper.mint'
+  result <- internal_wrapper.mint(
+    X = X,
+    Y = Y,
+    ncomp = ncomp,
+    scale = scale,
+    near.zero.var = near.zero.var,
+    mode = mode,
+    max.iter = max.iter,
+    tol = tol,
+    logratio = logratio,
+    multilevel = multilevel,
+    DA = FALSE,
+    all.outputs = all.outputs
+  )
+
+  # choose the desired output from 'result'
+  out <- list(
+    call = match.call(),
+    X = result$A[-result$indY][[1]],
+    Y = result$A[result$indY][[1]],
+    ncomp = result$ncomp,
+    mode = result$mode,
+    variates = result$variates,
+    loadings = result$loadings,
+    loadings.star = result$loadings.star,
+    names = result$names,
+    tol = result$tol,
+    iter = result$iter,
+    max.iter = result$max.iter,
+    nzv = result$nzv,
+    scale = scale,
+    logratio = logratio,
+    prop_expl_var = result$prop_expl_var,
+    input.X = result$input.X,
+    mat.c = result$mat.c # ,
+    # defl.matrix = result$defl.matrix
+  )
+
+  if (verbose.call) {
+    c <- out$call
+    out$call <- mget(names(formals()))
+    out$call <- append(c, out$call)
+    names(out$call)[1] <- "simple.call"
+  }
+
+  class(out) <- c("mixo_pls")
+  # output if multilevel analysis
+  if (!is.null(multilevel)) {
+    out$multilevel <- multilevel
+    class(out) <- c("mixo_mlpls", class(out))
+  }
+
+  return(invisible(out))
 }
