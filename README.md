@@ -22,6 +22,22 @@ TODO to slim down:
 - [ ] remove LaTeX syntax from roxygen
 - [ ] trim down the mint internals
 - [ ] use hardhat?
-- [ ] 
+- [ ] move to rlang error and warning functions
+- [ ] make minimal PLS test cases using current mixOmics
+- [ ] use `utils::globalVariables()`
+- [ ] remove all parallel processing
+- [ ] remove tuning functions
+- [ ] remove performance functions
+- [ ] remove resampling functions
+
+
+
+Important argment: 
+
+ - `mode`: regression", "canonical", "invariant", "classic"
+ - `ncomp`
+ - `keepX`: counts (move to proportion)
+ 
+
 
 
